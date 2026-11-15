@@ -1,0 +1,2 @@
+{% extends 'base.html' %}
+{% block content %}<div class="card"><h1>{{ err.code }}</h1><p>{{ {403:'Нет доступа', 404:'Запись не найдена', 413:'Слишком большой файл (не более 15 МБ)'}[err.code] }}</p></div>{% endblock %}

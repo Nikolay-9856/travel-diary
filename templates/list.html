@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="head">
+  <h1>{{ title }}</h1>
+  {% if not mine %}
+  <form method="get" class="inline">
+    <input name="q" value="{{ q }}" placeholder="Город, страна…">
+    <select name="sort" onchange="this.form.submit()">
+      {% for k, n in [('new','Новые записи'),('date','По дате поездки'),('cheap','Сначала бюджетные'),('rating','По средней оценке')] %}
+      <option value="{{ k }}" {{ 'selected' if sort==k }}>{{ n }}</option>{% endfor %}
+    </select>
+    {% if g.user %}<label class="chk"><input type="checkbox" name="others" value="1" {{ 'checked' if request.args.others }} onchange="this.form.submit()"> только чужие</label>{% endif %}
+    <button class="btn ghost">Найти</button>
+  </form>
+  {% endif %}
+</div>
+<div id="map" class="map" data-src="{{ url_for('api_trips') }}"></div>
+<div class="grid">
+{% for t in trips %}
+  <a class="trip" href="{{ url_for('trip', trip_id=t.id) }}">
+    {% if t.cover %}<img src="{{ url_for('uploaded', name=t.cover) }}" alt="">{% else %}<div class="nophoto">📍</div>{% endif %}
+    <div class="pad">
+      <div class="place">{{ t.place }}{% if not t.is_public %} · 🔒 личная{% endif %}</div>
+      <b>{{ t.title }}</b>
+      <div class="muted">{{ t.display_name }}{% if t.date_from %} · {{ t.date_from }}{% endif %}</div>
+      <div class="row">{% if t.cost is not none %}<span>💰 {{ '{:,.0f}'.format(t.cost).replace(',', ' ') }} {{ t.currency }}</span>{% endif %}
+      {% if t.avg_rating %}<span>★ {{ t.avg_rating }}</span>{% endif %}</div>
+    </div>
+  </a>
+{% else %}<p class="muted">Записей пока нет.</p>{% endfor %}
+</div>
+{% endblock %}
+{% block scripts %}<script>initOverviewMap('map');</script>{% endblock %}

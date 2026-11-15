@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+<form method="post" class="card narrow">
+  <h1>{{ 'Вход' if mode=='login' else 'Новый путешественник' }}</h1>
+  <label>Логин<input name="username" required></label>
+  {% if mode=='register' %}<label>Как вас показывать другим<input name="display_name" placeholder="Например, Маша из Казани"></label>{% endif %}
+  <label>Пароль<input type="password" name="password" required></label>
+  <button class="btn">{{ 'Войти' if mode=='login' else 'Создать профиль' }}</button>
+</form>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}{{ t.title }}{% endblock %}
+{% block content %}
+<article class="card">
+  <div class="place">{{ t.place }}</div>
+  <h1>{{ t.title }}</h1>
+  <p class="muted">Автор: {{ t.display_name }}{% if t.date_from %} · {{ t.date_from }}{% if t.date_to %} — {{ t.date_to }}{% endif %}{% endif %}{% if not t.is_public %} · 🔒 видна только вам{% endif %}</p>
+  <div class="cols">
+    <div>
+      <p class="body">{{ t.description }}</p>
+      <h3>Стоимость поездки</h3>
+      <p class="big">{% if t.cost is not none %}{{ '{:,.0f}'.format(t.cost).replace(',', ' ') }} {{ t.currency }}{% else %}не указана{% endif %}</p>
+      <h3>Оценки</h3>
+      {% for key, name in RATINGS.items() %}
+      <div class="rate"><span>{{ name }}</span><span class="stars">{% if t[key] %}{{ '★' * t[key] }}<i>{{ '★' * (5 - t[key]) }}</i>{% else %}—{% endif %}</span></div>
+      {% endfor %}
+    </div>
+    <div>
+      {% if t.lat is not none %}
+      <div id="tripmap" class="map small" data-lat="{{ t.lat }}" data-lon="{{ t.lon }}" data-title="{{ t.place }}"></div>
+      <p class="muted">Координаты: {{ '%.5f'|format(t.lat) }}, {{ '%.5f'|format(t.lon) }}</p>
+      {% endif %}
+    </div>
+  </div>
+  {% if photos %}<h3>Фотографии мест</h3>
+  <div class="gallery">{% for p in photos %}<figure><a href="{{ url_for('uploaded', name=p.filename) }}" target="_blank"><img src="{{ url_for('uploaded', name=p.filename) }}" alt=""></a>{% if p.caption %}<figcaption>{{ p.caption }}</figcaption>{% endif %}</figure>{% endfor %}</div>{% endif %}
+  {% if g.user and g.user.id == t.user_id %}
+  <div class="row actions"><a class="btn ghost" href="{{ url_for('edit_trip', trip_id=t.id) }}">Редактировать</a>
+  <form method="post" action="{{ url_for('delete_trip', trip_id=t.id) }}" onsubmit="return confirm('Удалить запись?')"><button class="btn danger">Удалить</button></form></div>
+  {% endif %}
+</article>
+{% endblock %}
+{% block scripts %}<script>initPointMap('tripmap');</script>{% endblock %}

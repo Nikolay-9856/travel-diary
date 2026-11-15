@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Дневник путешествий{% endblock %}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='vendor/leaflet/leaflet.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='travel.css') }}">
+</head>
+<body>
+<header>
+  <a class="logo" href="{{ url_for('explore') }}">🧭 Дневник путешествий</a>
+  <nav>
+    <a href="{{ url_for('explore') }}">Сообщество</a>
+    {% if g.user %}
+      <a href="{{ url_for('my_trips') }}">Мои поездки</a>
+      <a class="btn" href="{{ url_for('edit_trip') }}">+ Новая запись</a>
+      <a href="{{ url_for('logout') }}">Выйти ({{ g.user.display_name }})</a>
+    {% else %}
+      <a href="{{ url_for('login') }}">Вход</a><a class="btn" href="{{ url_for('register') }}">Регистрация</a>
+    {% endif %}
+  </nav>
+</header>
+<main>
+{% for m in get_flashed_messages() %}<div class="flash">{{ m }}</div>{% endfor %}
+{% block content %}{% endblock %}
+</main>
+<script src="{{ url_for('static', filename='vendor/leaflet/leaflet.js') }}"></script>
+<script src="{{ url_for('static', filename='map.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body></html>

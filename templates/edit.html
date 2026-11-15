@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block content %}
+<form method="post" enctype="multipart/form-data" class="card">
+  <h1>{{ 'Редактирование записи' if t and t.id else 'Новое путешествие' }}</h1>
+  <div class="two"><label>Название<input name="title" required value="{{ t.title if t }}" placeholder="Неделя на Байкале"></label>
+  <label>Место<input name="place" required value="{{ t.place if t }}" placeholder="Листвянка, Иркутская обл."></label></div>
+  <div class="two"><label>Дата начала<input type="date" name="date_from" value="{{ t.date_from if t and t.date_from }}"></label>
+  <label>Дата окончания<input type="date" name="date_to" value="{{ t.date_to if t and t.date_to }}"></label></div>
+  <label>Рассказ о поездке<textarea name="description" rows="6">{{ t.description if t }}</textarea></label>
+
+  <h3>📍 Местоположение</h3>
+  <p class="muted">Кликните по карте или нажмите «Моё местоположение» — координаты подставятся сами.</p>
+  <div id="pickmap" class="map small"></div>
+  <div class="three">
+    <label>Широта<input id="lat" name="lat" value="{{ t.lat if t and t.lat is not none }}"></label>
+    <label>Долгота<input id="lon" name="lon" value="{{ t.lon if t and t.lon is not none }}"></label>
+    <button type="button" class="btn ghost" onclick="useMyLocation()">Моё местоположение</button>
+  </div>
+
+  <h3>💰 Стоимость</h3>
+  <div class="two"><label>Итого потрачено<input name="cost" type="number" min="0" step="1" value="{{ t.cost|int if t and t.cost is not none }}"></label>
+  <label>Валюта<select name="currency">{% for c in CURRENCIES %}<option {{ 'selected' if t and t.currency==c }}>{{ c }}</option>{% endfor %}</select></label></div>
+
+  <h3>⭐ Оценки (1–5)</h3>
+  <div class="two">{% for key, name in RATINGS.items() %}
+    <label>{{ name }}<select name="{{ key }}"><option value="">—</option>{% for i in range(1,6) %}<option {{ 'selected' if t and t[key]==i }}>{{ i }}</option>{% endfor %}</select></label>{% endfor %}</div>
+
+  <h3>📷 Фотографии мест</h3>
+  {% if photos %}<div class="gallery">{% for p in photos %}<figure><img src="{{ url_for('uploaded', name=p.filename) }}" alt="">
+     <button class="link" formaction="{{ url_for('delete_photo', photo_id=p.id) }}" formmethod="post">удалить</button></figure>{% endfor %}</div>{% endif %}
+  <div class="two"><label>Добавить фото (до 8)<input type="file" name="photos" accept="image/*" multiple></label>
+  <label>Подпись к новым фото<input name="caption"></label></div>
+
+  <label class="chk"><input type="checkbox" name="is_public" value="1" {{ 'checked' if not t or t.is_public }}> Показывать запись другим пользователям</label>
+  <button class="btn">Сохранить</button>
+</form>
+{% endblock %}
+{% block scripts %}<script>initPickerMap('pickmap', 'lat', 'lon');</script>{% endblock %}
